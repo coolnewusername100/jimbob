@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JimBob</title>
+  <style>
+    /* =============================================
+       COLOURS — change these to restyle the site
+    ============================================= */
+    :root {
+      --white:       #ffffff;
+      --off-white:   #f7f7f7;
+      --light-grey:  #e8e8e8;
+      --mid-grey:    #aaaaaa;
+      --dark-grey:   #444444;
+      --black:       #111111;
+    }
+
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      background: var(--white);
+      color: var(--black);
+      height: 100vh;
+      overflow: hidden; /* stops the whole page scrolling */
+      display: flex;
+    }
+
+    button {
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    input {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    /* =============================================
+       LAYOUT — sidebar + main area side by side
+    ============================================= */
+    #sidebar {
+      width: 220px;
+      min-width: 220px;
+      height: 100vh;
+      border-right: 1px solid var(--light-grey);
+      background: var(--off-white);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    #main {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    /* =============================================
+       SIDEBAR — top button (website name)
+    ============================================= */
+    #home-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: left;
+      border-bottom: 1px solid var(--light-grey);
+      color: var(--black);
+    }
+
+    #home-btn:hover { background: var(--light-grey); }
+
+    /* =============================================
+       SIDEBAR — page type sections
+    ============================================= */
+    .section {
+      border-bottom: 1px solid var(--light-grey);
+    }
+
+    /* The section header row e.g. "Page Type 1" + "+" button */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--mid-grey);
+    }
+
+    /* The "+" button next to each section title */
+    .add-page-btn {
+      font-size: 18px;
+      color: var(--mid-grey);
+      line-height: 1;
+      padding: 0 4px;
+    }
+
+    .add-page-btn:hover { color: var(--black); }
+
+    /* Individual page link in sidebar */
+    .page-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 7px 16px 7px 24px;
+      color: var(--dark-grey);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; /* adds "..." if name is too long */
+    }
+
+    .page-link:hover { background: var(--light-grey); }
+
+    /* Highlighted state when page is active */
+    .page-link.active {
+      background: var(--light-grey);
+      color: var(--black);
+      font-weight: bold;
+      border-left: 3px solid var(--black);
+      padding-left: 21px;
+    }
+
+    /* =============================================
+       MAIN AREA — home screen
+    ============================================= */
+    #home-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      font-size: 24px;
+      color: var(--mid-grey);
+    }
+
+    /* =============================================
+       MAIN AREA — page header (page name at top)
+    ============================================= */
+    #page-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--light-grey);
+    }
+
+    /* =============================================
+       PAGE TYPE 1 — three stacked boxes
+    ============================================= */
+    .time-box {
+      border: 1px solid var(--light-grey);
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    /* Header row of each time box e.g. "Recent" + "+" */
+    .time-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--light-grey);
+      background: var(--off-white);
+    }
+
+    .time-box-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dark-grey);
+    }
+
+    /* "+" button inside each time box header */
+    .add-entry-btn {
+      font-size: 18px;
+      color: var(--mid-grey);
+      line-height: 1;
+    }
+
+    .add-entry-btn:hover { color: var(--black); }
+
+    /* A single entry row */
+    .entry-row {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--light-grey);
+      gap: 8px;
+    }
+
+    .entry-row:last-child { border-bottom: none; }
+
+    /* The dot bullet point */
+    .entry-bullet {
+      color: var(--mid-grey);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* The text input for each entry */
+    .entry-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--black);
+      font-size: 13px;
+    }
+
+    /* Delete button on each entry */
+    .delete-entry-btn {
+      color: var(--mid-grey);
+      font-size: 14px;
+      padding: 2px 4px;
+      flex-shrink: 0;
+      opacity: 0; /* hidden until hover */
+      transition: opacity 0.15s;
+    }
+
+    .entry-row:hover .delete-entry-btn { opacity: 1; }
+    .delete-entry-btn:hover { color: var(--black); }
+
+    /* Empty state message inside a time box */
+    .empty-box {
+      padding: 10px 12px;
+      color: var(--mid-grey);
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    /* =============================================
+       PAGE TYPE 2 — placeholder
+    ============================================= */
+    #page-type-2-content {
+      color: var(--mid-grey);
+      font-style: italic;
+    }
+
+    /* =============================================
+       MODAL — add new page
+    ============================================= */
+    #modal-overlay {
+      display: none; /* hidden by default */
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #modal-overlay.open { display: flex; }
+
+    #modal {
+      background: var(--white);
+      border: 1px solid var(--light-grey);
+      border-radius: 4px;
+      padding: 24px;
+      width: 300px;
+    }
+
+    #modal h3 {
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    #modal input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--light-grey);
+      border-radius: 3px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    #modal input:focus { border-color: var(--dark-grey); }
+
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .modal-buttons button {
+      padding: 7px 16px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    #modal-cancel {
+      border: 1px solid var(--light-grey);
+      color: var(--dark-grey);
+    }
+
+    #modal-cancel:hover { background: var(--off-white); }
+
+    #modal-confirm {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    #modal-confirm:hover { background: var(--dark-grey); }
+
+    /* =============================================
+       SETUP BANNER — for Supabase keys
+    ============================================= */
+    #setup-banner {
+      background: var(--off-white);
+      border: 1px solid var(--light-grey);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    #setup-banner p {
+      margin-bottom: 10px;
+      color: var(--dark-grey);
+    }
+
+    #setup-banner input {
+      display: block;
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--light-grey);
+      border-radius: 3px;
+      margin-bottom: 8px;
+      outline: none;
+    }
+
+    #setup-banner button {
+      padding: 7px 16px;
+      background: var(--black);
+      color: var(--white);
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    #setup-banner button:hover { background: var(--dark-grey); }
+
+    /* =============================================
+       MOBILE — sidebar slides in from left
+    ============================================= */
+    #mobile-toggle {
+      display: none; /* hidden on desktop */
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 50;
+      font-size: 20px;
+      background: var(--white);
+      border: 1px solid var(--light-grey);
+      border-radius: 3px;
+      padding: 4px 10px;
+    }
+
+    @media (max-width: 600px) {
+      /* On mobile, sidebar floats over the page */
+      #sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 40;
+        transform: translateX(-100%); /* hidden off screen */
+        transition: transform 0.25s ease;
+        box-shadow: 4px 0 16px rgba(0,0,0,0.1);
+        width: 80%; /* leaves a gap on the right so you can see page behind */
+        max-width: 280px;
+      }
+
+      /* When sidebar is open */
+      #sidebar.open { transform: translateX(0); }
+
+      /* Dim overlay behind sidebar on mobile */
+      #sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.2);
+        z-index: 39;
+      }
+
+      #sidebar-overlay.open { display: block; }
+
+      #mobile-toggle { display: block; }
+
+      #main { padding: 16px; padding-top: 52px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE: hamburger button to open sidebar -->
+  <button id="mobile-toggle" onclick="toggleSidebar()">☰</button>
+
+  <!-- MOBILE: dim overlay behind sidebar -->
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- =============================================
+       SIDEBAR
+  ============================================= -->
+  <div id="sidebar">
+
+    <!-- Website name button — goes to home -->
+    <button id="home-btn" onclick="showHome()">JimBob</button>
+
+    <!-- Page Type 1 section -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Page Type 1</span>
+        <button class="add-page-btn" onclick="openModal('type1')">+</button>
+      </div>
+      <div id="sidebar-type1">
+        <!-- Page links inserted here by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Page Type 2 section -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Page Type 2</span>
+        <button class="add-page-btn" onclick="openModal('type2')">+</button>
+      </div>
+      <div id="sidebar-type2">
+        <!-- Page links inserted here by JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =============================================
+       MAIN CONTENT AREA
+  ============================================= -->
+  <div id="main">
+
+    <!-- Supabase setup banner -->
+    <div id="setup-banner">
+      <p>One-time setup: enter your Supabase URL and anon key.</p>
+      <input type="text" id="cfg-url" placeholder="https://xxxxxx.supabase.co" />
+      <input type="text" id="cfg-key" placeholder="anon key (eyJhbGci...)" />
+      <button onclick="saveConfig()">Save & Connect</button>
+    </div>
+
+    <!-- Home screen -->
+    <div id="home-screen">Hello :)</div>
+
+    <!-- Page content (shown when a page is selected) -->
+    <div id="page-content" style="display:none">
+      <div id="page-title"></div>
+      <div id="page-body"></div>
+    </div>
+
+  </div>
+
+  <!-- =============================================
+       MODAL — add new page
+  ============================================= -->
+  <div id="modal-overlay">
+    <div id="modal">
+      <h3 id="modal-title">Add new page</h3>
+      <input type="text" id="modal-input" placeholder="Page name" />
+      <div class="modal-buttons">
+        <button id="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button id="modal-confirm" onclick="confirmModal()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+       JAVASCRIPT
+  ============================================= -->
+  <script>
+
+    // ── Supabase config ─────────────────────────────────────────────
+    let URL  = localStorage.getItem('jb_url') || '';
+    let KEY  = localStorage.getItem('jb_key') || '';
+
+    // Hide setup banner if already configured
+    if (URL && KEY) document.getElementById('setup-banner').style.display = 'none';
+
+    function saveConfig() {
+      URL = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
+      KEY = document.getElementById('cfg-key').value.trim();
+      if (!URL || !KEY) { alert('Please fill in both fields.'); return; }
+      localStorage.setItem('jb_url', URL);
+      localStorage.setItem('jb_key', KEY);
+      document.getElementById('setup-banner').style.display = 'none';
+      loadSidebar();
+    }
+
+    // Headers sent with every Supabase request
+    function headers() {
+      return {
+        'Content-Type': 'application/json',
+        'apikey': KEY,
+        'Authorization': 'Bearer ' + KEY
+      };
+    }
+
+    // ── State ────────────────────────────────────────────────────────
+    let activePage = null; // the currently open page object
+
+    // ── Sidebar ──────────────────────────────────────────────────────
+
+    // Load all pages from Supabase and render them in the sidebar
+    async function loadSidebar() {
+      if (!URL || !KEY) return;
+
+      const res  = await fetch(URL + '/rest/v1/pages?select=*&order=position', { headers: headers() });
+      const pages = await res.json();
+
+      // Split pages by type
+      const type1 = pages.filter(p => p.type === 'type1');
+      const type2 = pages.filter(p => p.type === 'type2');
+
+      renderSidebarSection('sidebar-type1', type1);
+      renderSidebarSection('sidebar-type2', type2);
+    }
+
+    // Render a list of pages into a sidebar section
+    function renderSidebarSection(containerId, pages) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      pages.forEach(page => {
+        const btn = document.createElement('button');
+        btn.className = 'page-link' + (activePage && activePage.id === page.id ? ' active' : '');
+        btn.textContent = page.name;
+        btn.onclick = () => openPage(page);
+        container.appendChild(btn);
+      });
+    }
+
+    // ── Pages ────────────────────────────────────────────────────────
+
+    // Show the home screen
+    function showHome() {
+      activePage = null;
+      document.getElementById('home-screen').style.display  = 'flex';
+      document.getElementById('page-content').style.display = 'none';
+      // Remove active highlight from all sidebar links
+      document.querySelectorAll('.page-link').forEach(b => b.classList.remove('active'));
+      closeSidebar();
+    }
+
+    // Open a page and show its content
+    async function openPage(page) {
+      activePage = page;
+      document.getElementById('home-screen').style.display  = 'none';
+      document.getElementById('page-content').style.display = 'block';
+      document.getElementById('page-title').textContent = page.name;
+
+      // Highlight active page in sidebar
+      document.querySelectorAll('.page-link').forEach(b => {
+        b.classList.toggle('active', b.textContent === page.name);
+      });
+
+      // Load the right content depending on page type
+      if (page.type === 'type1') await renderType1(page);
+      if (page.type === 'type2') renderType2();
+
+      closeSidebar();
+    }
+
+    // ── Page Type 1 ──────────────────────────────────────────────────
+
+    // How old an entry needs to be (in days) to be in each bucket
+    const RECENT_DAYS = 3;
+    const MID_DAYS    = 3 + 21;   // 3 days + 3 weeks
+    const OLD_DAYS    = 3 + 21 + 90; // + 3 months
+
+    // Work out which bucket an entry belongs in based on created_at
+    function getBucket(createdAt) {
+      const ageInDays = (Date.now() - new Date(createdAt)) / (1000 * 60 * 60 * 24);
+      if (ageInDays < RECENT_DAYS) return 'recent';
+      if (ageInDays < MID_DAYS)    return 'mid';
+      if (ageInDays < OLD_DAYS)    return 'old';
+      return 'expired'; // will be deleted
+    }
+
+    // Render the three time boxes for a type1 page
+    async function renderType1(page) {
+      const res     = await fetch(URL + `/rest/v1/jimbob_entries?page_id=eq.${page.id}&select=*&order=position`, { headers: headers() });
+      const entries = await res.json();
+
+      // Delete any expired entries silently
+      const expired = entries.filter(e => getBucket(e.created_at) === 'expired');
+      for (const e of expired) {
+        await fetch(URL + `/rest/v1/jimbob_entries?id=eq.${e.id}`, { method: 'DELETE', headers: headers() });
+      }
+
+      // Split remaining entries into buckets
+      const recent = entries.filter(e => getBucket(e.created_at) === 'recent');
+      const mid    = entries.filter(e => getBucket(e.created_at) === 'mid');
+      const old    = entries.filter(e => getBucket(e.created_at) === 'old');
+
+      // Build the HTML for all three boxes
+      document.getElementById('page-body').innerHTML = `
+        ${timeBox('recent', 'Recent',  recent,  page.id)}
+        ${timeBox('mid',    'Mid',     mid,     page.id)}
+        ${timeBox('old',    'Old',     old,     page.id)}
+      `;
+    }
+
+    // Build HTML for one time box
+    function timeBox(bucket, label, entries, pageId) {
+      const entriesHTML = entries.length === 0
+        ? `<div class="empty-box">No entries</div>`
+        : entries.map(e => `
+            <div class="entry-row" data-id="${e.id}">
+              <span class="entry-bullet">·</span>
+              <input class="entry-input" value="${escHtml(e.content)}"
+                onblur="updateEntry(${e.id}, this.value)" />
+              <button class="delete-entry-btn" onclick="deleteEntry(${e.id}, ${pageId})">✕</button>
+            </div>
+          `).join('');
+
+      return `
+        <div class="time-box">
+          <div class="time-box-header">
+            <span class="time-box-title">${label}</span>
+            <button class="add-entry-btn" onclick="addEntry(${pageId})">+</button>
+          </div>
+          ${entriesHTML}
+        </div>
+      `;
+    }
+
+    // Add a new entry (always goes into Recent because it's brand new)
+    async function addEntry(pageId) {
+      await fetch(URL + '/rest/v1/jimbob_entries', {
+        method: 'POST',
+        headers: { ...headers(), 'Prefer': 'return=representation' },
+        body: JSON.stringify({ page_id: pageId, content: '', position: 0 })
+      });
+      await openPage(activePage);
+    }
+
+    // Save edits to an entry when you click away from it
+    async function updateEntry(id, newContent) {
+      await fetch(URL + `/rest/v1/jimbob_entries?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: headers(),
+        body: JSON.stringify({ content: newContent })
+      });
+    }
+
+    // Delete an entry
+    async function deleteEntry(id, pageId) {
+      await fetch(URL + `/rest/v1/jimbob_entries?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: headers()
+      });
+      await openPage(activePage);
+    }
+
+    // ── Page Type 2 ──────────────────────────────────────────────────
+
+    function renderType2() {
+      document.getElementById('page-body').innerHTML = `
+        <p id="page-type-2-content">Page type 2 — coming soon.</p>
+      `;
+    }
+
+    // ── Modal (add new page) ─────────────────────────────────────────
+
+    let pendingType = null; // which type of page we're adding
+
+    function openModal(type) {
+      pendingType = type;
+      document.getElementById('modal-title').textContent =
+        'Add new ' + (type === 'type1' ? 'Page Type 1' : 'Page Type 2');
+      document.getElementById('modal-input').value = '';
+      document.getElementById('modal-overlay').classList.add('open');
+      document.getElementById('modal-input').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      pendingType = null;
+    }
+
+    // Close modal if user presses Enter
+    document.getElementById('modal-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') confirmModal();
+      if (e.key === 'Escape') closeModal();
+    });
+
+    async function confirmModal() {
+      const name = document.getElementById('modal-input').value.trim();
+      if (!name) { alert('Please enter a page name.'); return; }
+
+      await fetch(URL + '/rest/v1/pages', {
+        method: 'POST',
+        headers: { ...headers(), 'Prefer': 'return=representation' },
+        body: JSON.stringify({ name: name, type: pendingType, position: 0 })
+      });
+
+      closeModal();
+      await loadSidebar();
+    }
+
+    // ── Mobile sidebar ───────────────────────────────────────────────
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+
+    // ── Utility ──────────────────────────────────────────────────────
+
+    function escHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────
+    loadSidebar();
+
+  </script>
+</body>
+</html>
